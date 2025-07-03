@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.addenda.component.mybatis.test.TCourseMapper">
+  <resultMap id="tCourse" type="cn.addenda.component.mybatis.test.TCourse">
+    <id property="courseId" column="course_id"/>
+  </resultMap>
+
+  <delete id="createTable">
+    create table t_course
+    (
+      course_id   varchar(100)
+        primary key,
+      course_name varchar(200) not null
+    );
+  </delete>
+
+  <delete id="dropTable">
+    drop table t_course
+  </delete>
+
+  <insert id="testInsert">
+    insert into t_course(course_id, course_name)
+    values (#{tCourse.courseId}, #{tCourse.courseName})
+  </insert>
+
+  <insert id="testInsertBatch">
+    insert into t_course(course_id, course_name)
+    values
+    <foreach collection="tCourses" item="item" separator=",">
+      (#{item.courseId}, #{item.courseName})
+    </foreach>
+  </insert>
+
+  <select id="testStringMapResultHandler" resultType="java.util.Map">
+    select course_name as `key`, course_id as `value`
+    from t_course
+  </select>
+
+  <select id="queryByCourseId" resultMap="tCourse">
+    select *
+    from t_course
+    where course_id = #{courseId}
+  </select>
+</mapper>
