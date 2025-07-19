@@ -1,5 +1,6 @@
 package cn.addenda.component.mybatis.helper;
 
+import cn.addenda.component.mybatis.MybatisException;
 import cn.addenda.component.stacktrace.StackTraceUtils;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,7 @@ public class BatchDmlHelper {
    * @param merger      合并单次function的接口
    * @param batchSize   flush到db的最大值
    * @param name        给batch操作起个名，方便排查问题
+   * @return 影响的行数
    */
   public <T, U> Integer batch(Class<T> mapperClass, Iterable<U> data, BiConsumer<T, U> consumer, IntBinaryOperator merger, int batchSize, String name) {
     if (data == null) {
@@ -146,6 +148,9 @@ public class BatchDmlHelper {
       }
       if (Statement.SUCCESS_NO_INFO == left || Statement.SUCCESS_NO_INFO == right) {
         return Statement.SUCCESS_NO_INFO;
+      }
+      if (Statement.EXECUTE_FAILED == left || Statement.EXECUTE_FAILED == right) {
+        throw new MybatisException(String.format("Batch execute fail! left: %s, right: %s.", left, right));
       }
       return left + right;
     };
